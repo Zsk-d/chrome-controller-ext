@@ -1,0 +1,5 @@
+**/*.map
+logs/
+node_modules/
+userdata/
+dist/

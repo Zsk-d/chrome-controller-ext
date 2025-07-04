@@ -1,0 +1,74 @@
+{
+  "manifest_version": 3,
+  "name": "zsk-spider-ext",
+  "version": "1.0",
+  "description": "Extension with message passing",
+  "permissions": [
+    "scripting",
+    "tabs",
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "webRequest",
+    "debugger"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "util/req.js",
+        "util/ele.js",
+        "contentjs/contentConfig.js",
+        "contentjs/ws.js",
+        "contentjs/doc_start.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "contentjs/doc_end.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "contentjs/doc_idle.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "zsk-spider-ext"
+  },
+  "web_accessible_resources":[
+    {
+      "resources": [
+        "inject_js/inject_req_hijack.js",
+        "inject_js/inject_hide_cdp.js",
+        "inject_js/inject_mix_canvas.js",
+        "inject_js/inject_JP_timezone.js",
+        "inject_js/inject_eval.js",
+        "inject_js/inject_webrtc_patch.js",
+        "inject_js/inject_2captcha.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
