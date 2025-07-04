@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件监听与isTrusted属性</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            /* background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c); */
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background: rgba(25, 25, 50, 0.85);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            color: #ffcc00;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            background: #ffcc00;
+            color: #000;
+            padding: 0 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-section,
+        .events-section {
+            background: rgba(40, 40, 70, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #4fc3f7;
+            border-bottom: 2px solid #4fc3f7;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 2px solid #4fc3f7;
+            transition: all 0.3s ease;
+        }
+
+        select option {
+            background-color: lightyellow;
+            /* 控制下拉项背景 */
+            color: black;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #ffcc00;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+
+        button {
+            background: linear-gradient(to right, #4fc3f7, #2196f3);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            border: none;
+            font-size: 1.1rem;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #29b6f6, #0288d1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .event-list {
+            height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .event-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            border-left: 4px solid #4fc3f7;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .event-item.trusted {
+            border-left-color: #4caf50;
+        }
+
+        .event-item.untrusted {
+            border-left-color: #f44336;
+        }
+
+        .event-type {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .event-source {
+            color: #4fc3f7;
+            margin: 5px 0;
+        }
+
+        .event-trusted {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .true {
+            color: #4caf50;
+        }
+
+        .false {
+            color: #f44336;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .actions button {
+            flex: 1;
+        }
+
+        .info-box {
+            background: rgba(255, 204, 0, 0.15);
+            border-left: 4px solid #ffcc00;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 25px;
+            font-size: 0.95rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4fc3f7;
+            border-radius: 4px;
+        }
+
+        .element-name {
+            display: inline-block;
+            background: #7e57c2;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+
+        .user-triggered {
+            background: #4caf50;
+        }
+
+        .script-triggered {
+            background: #f44336;
+        }
+
+        .event-item.new {
+            animation: highlight 1s ease;
+        }
+
+        @keyframes highlight {
+            0% {
+                background: rgba(255, 204, 0, 0.3);
+            }
+
+            100% {
+                background: rgba(255, 255, 255, 0.08);
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+    <script>
+        // 测试js window 变量
+        window.testk1 = 'testk1'
+        window.testk2 = 'testk2'
+        window.testk3 = {
+            k1: {
+                k1v: 'k1v'
+            },
+            k2: '123'
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>事件监听器与isTrusted属性</h1>
+            <p class="subtitle">
+                <span class="highlight">isTrusted</span> 属性用于区分事件是由用户操作触发（值为 true）还是由脚本触发（值为
+                false）。本演示展示了各种DOM事件的监听，并显示其isTrusted值。
+            </p>
+        </header>
+
+        <div class="content">
+            <div class="form-section">
+                <h2>交互元素</h2>
+
+                <div class="form-group">
+                    <label for="textInput">文本输入框 <span class="element-name">input</span></label>
+                    <input type="text" id="textInput" placeholder="在此输入内容...">
+                </div>
+
+                <div class="form-group">
+                    <label for="checkboxInput">多选框 <span class="element-name">checkbox</span></label>
+                    <input style="width: 20px;height: 20px;margin-left: 20px;" type="checkbox" id="checkboxInput">
+                </div>
+
+                <div class="form-group">
+                    <label for="selectBox">下拉选择框 <span class="element-name">select</span></label>
+                    <select id="selectBox">
+                        <option value="">请选择一个选项</option>
+                        <option value="option1">选项一</option>
+                        <option value="option2">选项二</option>
+                        <option value="option3">选项三</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>按钮 <span class="element-name">button</span></label>
+                    <button id="actionButton">点击我</button>
+                </div>
+
+                <!-- <div class="actions">
+                    <button id="triggerInput">脚本触发输入框事件</button>
+                    <button id="triggerSelect">脚本触发下拉框事件</button>
+                    <button id="triggerButton">脚本触发按钮事件</button>
+                </div> -->
+            </div>
+
+            <div class="events-section">
+                <h2>事件监控 <span id="eventCount">(0)</span></h2>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color user-triggered"></div>
+                        <span>用户触发 (isTrusted: true)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color script-triggered"></div>
+                        <span>脚本触发 (isTrusted: false)</span>
+                    </div>
+                </div>
+
+                <div class="event-list" id="eventList">
+                    <div class="event-item">
+                        事件信息将显示在这里...
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>监听的事件类型：</strong></p>
+                    <p>输入框: focus, blur, input, change</p>
+                    <p>下拉框: focus, blur, change</p>
+                    <p>按钮: click, focus, blur</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>演示说明：尝试与页面元素交互，或使用脚本触发按钮模拟事件触发</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const textInput = document.getElementById('textInput');
+            const selectBox = document.getElementById('selectBox');
+            const checkboxInput = document.getElementById('checkboxInput');
+            const actionButton = document.getElementById('actionButton');
+            const eventList = document.getElementById('eventList');
+            const eventCount = document.getElementById('eventCount');
+            const triggerInput = document.getElementById('triggerInput');
+            const triggerSelect = document.getElementById('triggerSelect');
+            const triggerButton = document.getElementById('triggerButton');
+
+            let count = 0;
+
+            // 添加事件到显示区域
+            function addEventToDisplay(event, elementName) {
+                count++;
+                eventCount.textContent = `(${count})`;
+
+                const eventItem = document.createElement('div');
+                eventItem.classList.add('event-item', 'new');
+                eventItem.classList.add(event.isTrusted ? 'trusted' : 'untrusted');
+
+                eventItem.innerHTML = `
+                    <div class="event-type">${event.type} 事件</div>
+                    <div class="event-source">来源: ${elementName}</div>
+                    <div class="event-trusted">isTrusted: <span class="${event.isTrusted}">${event.isTrusted}</span></div>
+                `;
+
+                eventList.prepend(eventItem);
+
+                // 移除new类以停止高亮动画
+                setTimeout(() => {
+                    eventItem.classList.remove('new');
+                }, 1000);
+            }
+
+            // 输入框事件监听
+            textInput.addEventListener('focus', (e) => addEventToDisplay(e, '输入框'));
+            textInput.addEventListener('blur', (e) => addEventToDisplay(e, '输入框'));
+            textInput.addEventListener('input', (e) => addEventToDisplay(e, '输入框'));
+            textInput.addEventListener('change', (e) => addEventToDisplay(e, '输入框'));
+
+            // 多选框事件监听
+            checkboxInput.addEventListener('focus', (e) => addEventToDisplay(e, '多选框'));
+            checkboxInput.addEventListener('blur', (e) => addEventToDisplay(e, '多选框'));
+            checkboxInput.addEventListener('input', (e) => addEventToDisplay(e, '多选框'));
+            checkboxInput.addEventListener('change', (e) => addEventToDisplay(e, '多选框'));
+
+            // 下拉框事件监听
+            selectBox.addEventListener('focus', (e) => addEventToDisplay(e, '下拉框'));
+            selectBox.addEventListener('blur', (e) => addEventToDisplay(e, '下拉框'));
+            selectBox.addEventListener('change', (e) => addEventToDisplay(e, '下拉框'));
+
+            // 按钮事件监听
+            actionButton.addEventListener('click', (e) => addEventToDisplay(e, '按钮'));
+            actionButton.addEventListener('focus', (e) => addEventToDisplay(e, '按钮'));
+            actionButton.addEventListener('blur', (e) => addEventToDisplay(e, '按钮'));
+
+            // 初始事件
+            // const initialEvent = new Event('DOMContentLoaded', { isTrusted: false });
+            // addEventToDisplay(initialEvent, '文档');
+        });
+    </script>
+</body>
+
+</html>
