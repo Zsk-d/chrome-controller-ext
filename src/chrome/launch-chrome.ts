@@ -14,7 +14,7 @@ const locMap: any = {
  * @param opions 浏览器参数
  * @returns 浏览器窗口pid
  */
-export const newChromeSession = (sessionId: string, opions: ChromeOption): number | undefined => {
+export const newChromeSession = (dir: string, sessionId: string, opions: ChromeOption): number | undefined => {
     let {
         windowSize = '1920,1080',
         maximized = false,
@@ -38,7 +38,7 @@ export const newChromeSession = (sessionId: string, opions: ChromeOption): numbe
     let paramsStr = ''
 
     const args = [
-        `--user-data-dir=${path.resolve('userdata/' + sessionId)}`,
+        `--user-data-dir=${path.resolve('userdata/' + dir + '/' + sessionId)}`,
         `--load-extension=${extPath}`,
         `--disable-extensions-except=${extPath}`,
         '--no-first-run',

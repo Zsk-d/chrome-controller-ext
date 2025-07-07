@@ -16,8 +16,8 @@ const WEBSOCKET_SERVER_PROT = 8899
 const wss = new WebSocket.Server({ port: WEBSOCKET_SERVER_PROT })
 // 清理 ./userdata文件夹下的所有文件
 const clearData = (sessionId?: string) => {
-    const basePath = 'userdata'
-    const targetPath = sessionId ? path.join('userdata', sessionId) : basePath
+    const basePath = 'userdata/tmp'
+    const targetPath = sessionId ? path.join('userdata/tmp', sessionId) : basePath
 
     const deleteRecursiveSync = (dirPath: string) => {
         if (!fs.existsSync(dirPath)) return
@@ -129,13 +129,19 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
          * }
          */
         if (msg.type === "ctlReg") {
+            const config = msg.data.config ? msg.data.config : defaultCtlConfig
             // 创建新的会话id - uuid
-            sessionId = v4()
+            // 检查是否指定sessionId
+            if (config.sessionId) {
+                sessionId = config.sessionId
+            } else {
+                sessionId = v4()
+            }
             clients[sessionId] = { ctlWs: ws }
             logger.info(`新控制会话创建: session: ${sessionId}`)
-            clients[sessionId].config = msg.data.config ? msg.data.config : defaultCtlConfig
+            clients[sessionId].config = config
             // 执行命令,开启chrome环境
-            let chromePid = newChromeSession(sessionId, clients[sessionId].config)
+            let chromePid = newChromeSession(config.keepUserdata ? 'hard' : 'tmp', sessionId, clients[sessionId].config)
             clients[sessionId].chromePid = chromePid
             logger.info('控制端注册成功: ' + JSON.stringify(msg))
             return ws.send(JSON.stringify({ sessionId }))
@@ -224,9 +230,12 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
             } catch (e: any) {
                 logger.warn(`无法终止 Chrome ${client.chromePid}:`, e.message)
             }
-            setTimeout(() => {
-                clearData(sessionId)
-            }, 5000)
+            if (sessionId && clients[sessionId] && clients[sessionId].config && clients[sessionId].config.keepUserdata) {
+            } else {
+                setTimeout(() => {
+                    clearData(sessionId)
+                }, 5000)
+            }
         }
 
         // 清理客户端

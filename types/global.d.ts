@@ -26,5 +26,11 @@ declare global {
 
         /** Chrome 执行文件路径，不提供则 使用系统默认路径 */
         chromePath?: string
+
+        // 是否保存userdata
+        keepUserdata?: boolean
+        
+        // 保存的sessionid的userdata
+        sessionId?: string
     }
 }
