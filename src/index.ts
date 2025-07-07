@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 import fs from 'fs'
 import path from 'path'
 
-import { newChromeSession } from './chrome/launchChrome'
+import { newChromeSession } from './chrome/launch-chrome'
 import { defaultCtlConfig } from './clientConfig'
 
 import { getLogger } from './logger'

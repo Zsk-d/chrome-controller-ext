@@ -23,7 +23,6 @@ const getTimeZoneInjectJs = (loc) => {
   injectScript('inject_js/inject_webrtc_patch.js')
   // injectScript('inject_js/inject_req_hijack.js')
   injectScript('inject_js/inject_hide_cdp.js')
-  injectScript('inject_js/inject_JP_timezone.js')
   injectScript('inject_js/inject_eval.js')
   injectScript('inject_js/inject_2captcha.js')
   window.addEventListener('XHREvent', function (event) {
@@ -41,12 +40,14 @@ const getTimeZoneInjectJs = (loc) => {
   if (!loc) {
     const parsed = new URL(window.location.href);
     loc = parsed.searchParams.get('loc');
+    console.log('获取到的时区参数:', loc);
     if (loc) {
       console.log('设置时区为:', loc);
       await setStorageData('loc', loc);
       injectScript(getTimeZoneInjectJs(loc))
     }
   } else {
+    console.log('存在时区配置', loc);
     injectScript(getTimeZoneInjectJs(loc))
   }
 

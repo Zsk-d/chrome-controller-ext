@@ -1,6 +1,6 @@
 import { spawn } from 'child_process'
 import path from 'path'
-import { getChromePath } from './getChromePath'
+import { getChromePath } from './get-chrome-path'
 import { getLogger } from '../logger'
 
 const logger = getLogger(__filename)
@@ -50,7 +50,6 @@ export const newChromeSession = (sessionId: string, opions: ChromeOption): numbe
         `--disable-notifications`,
         `--no-default-browser-check`,
         `--disable-features=PasswordManager`,
-        `--disable-blink-features=TrustedTypes`,
         '--disable-backgrounding-occluded-windows',
         '--disable-renderer-backgrounding',
         '--disable-background-timer-throttling',
