@@ -210,10 +210,9 @@ const ctlConfig = (() => {
             return elesRes
         },
         async eleClick(eleId, eleIndex) {
-            console.log(`点击元素: ${eleId} ${eleIndex}`);
             if (eleMap[eleId]) {
                 let ele = eleMap[eleId]
-                if (eleIndex >= 0) {
+                if (eleIndex !== null && eleIndex >= 0) {
                     if (eleIndex < ele.length) {
                         ele = ele[eleIndex]
                     }
@@ -222,6 +221,8 @@ const ctlConfig = (() => {
                 // 点击前先移动到元素, 防止cdp点不到元素
                 ele.scrollIntoView({ block: 'center' });
                 openDebuggerToClick(ele)
+            } else {
+                throw new Error(`元素不存在：${eleId} ${eleIndex}`)
             }
         },
         eleSendKey(eleId, eleIndex, key) {
@@ -235,6 +236,8 @@ const ctlConfig = (() => {
                 }
                 // 准备
                 triggerKeyPress(ele, key)
+            }else{
+                throw new Error(`元素不存在：${eleId} ${eleIndex}`)
             }
         },
         eleInput(eleId, eleIndex, str) {
@@ -326,23 +329,23 @@ ctlConfig.addCtlCmd('querySelectorAll', async (args) => {
  * 元素点击
  */
 ctlConfig.addCtlCmd('eleClick', async (args) => {
-    await ctlConfig.eleClick(args[0], args[1])
-    return { status: 200, msg: 'click done' }
+    try {
+        await ctlConfig.eleClick(args[0], args[1])
+        return { status: 200, msg: 'click done' }
+    } catch (error) {
+        return { status: 500, msg: error.message }
+    }
 })
 /**
  * 向元素发送按键事件, input的话会输入文字
  */
 ctlConfig.addCtlCmd('eleSendKey', async (args) => {
-    ctlConfig.eleSendKey(args[0], args[1], args[2])
-    return { status: 200, msg: 'send key done' }
-})
-/**
- * 向input输入文字
- */
-ctlConfig.addCtlCmd('eleInput', async (args) => {
-    const { eleId, eleIndex, str } = args[0]
-    ctlConfig.eleInput(eleId, eleIndex, str)
-    return { status: 200, msg: str + ' input done' }
+    try {
+        ctlConfig.eleSendKey(args[0], args[1], args[2])
+        return { status: 200, msg: 'send key done' }
+    } catch (error) {
+        return { status: 500, msg: error.message }
+    }
 })
 /**
  * 等待获取元素
