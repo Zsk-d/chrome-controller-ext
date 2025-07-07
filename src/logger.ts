@@ -1,17 +1,23 @@
-const fs = require('fs')
-const path = require('path')
+import path from 'path'
+import fs from 'fs'
 
-const logFilePath = path.join(__dirname, 'logs', 'transfer_server.log')
-fs.mkdirSync(path.dirname(logFilePath), { recursive: true })
+const logLevelList = ['debug', 'info', 'warn', 'error']
+const logFiles: any = {}
+for (const level of logLevelList) {
+    logFiles[level] = path.join(__dirname, 'logs', `chrome-controller-client-${level}.log`)
+    fs.mkdirSync(path.dirname(logFiles[level]), { recursive: true })
+}
 
-export const getLogger = (jsFile: string): Logger => {
+export const getLogger = (jsFile: string, consoleLevel: string = 'info'): Logger => {
     const fileName = path.basename(jsFile)
 
     const log = (level: string, message: string, ...args: any[]) => {
         const time = new Date().toLocaleString()
         const formatted = `[${time}] [${level.toUpperCase()}] [${fileName}]: ${message} ${args && args.length > 0 ? ('[' + args.join(', ') + ']') : ''}`
-        fs.appendFileSync(logFilePath, formatted + '\n')
-        console.log(formatted)
+        fs.appendFileSync(logFiles[level], formatted + '\n')
+        if (logLevelList.slice(logLevelList.indexOf(consoleLevel)).indexOf(level) > -1) {
+            console.log(formatted)
+        }
     }
 
     return {
