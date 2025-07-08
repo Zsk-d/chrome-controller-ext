@@ -30,7 +30,8 @@
         "contentjs/ws.js",
         "contentjs/doc_start.js"
       ],
-      "run_at": "document_start"
+      "run_at": "document_start",
+      "all_frames": true
     },
     {
       "matches": [
@@ -39,7 +40,8 @@
       "js": [
         "contentjs/doc_end.js"
       ],
-      "run_at": "document_end"
+      "run_at": "document_end",
+      "all_frames": true
     },
     {
       "matches": [
@@ -48,7 +50,8 @@
       "js": [
         "contentjs/doc_idle.js"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": true
     }
   ],
   "action": {

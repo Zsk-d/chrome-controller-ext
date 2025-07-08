@@ -21,7 +21,8 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         disableSystemProxy = false,
         proxy = null,
         loc = null,
-        chromePath = null
+        chromePath = null,
+        windowPosition = '0,0'
     } = opions || {}
 
     // Chrome 可执行路径
@@ -45,7 +46,7 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         '--no-default-browser-check',
         `--force-webrtc-ip-handling-policy=disable_non_proxied_udp`,
         `--disable-features=WebRtcHideLocalIpsWithMdns`,
-        `--window-position=0,0`,
+        `--window-position=${windowPosition}`,
         `--disable-popup-blocking`,
         `--disable-notifications`,
         `--no-default-browser-check`,

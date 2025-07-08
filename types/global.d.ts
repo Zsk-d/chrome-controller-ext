@@ -9,8 +9,12 @@ declare global {
     }
     type ChromeOption = {
 
-        /** 窗口大小，格式如 "1920x1080"，若未指定可在代码中默认处理 */
+        /** 窗口大小，格式如 "1920x1080" */
         windowSize?: string
+
+
+        /** 窗口位置，格式如 "1920x1080" */
+        windowPosition?: string
 
         /** 是否最大化窗口（默认为 false） */
         maximized?: boolean
