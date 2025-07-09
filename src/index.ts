@@ -84,6 +84,18 @@ const resolveRes = (sessionId: string, data = {}) => {
         data
     }))
 }
+const resolveExtEvent = (sessionId: string, data = {}) => {
+    clients[sessionId].ctlWs.send(JSON.stringify({
+        type: "ext-event",
+        data
+    }))
+}
+const resolveExtEventRes = (sessionId: string, data = {}) => {
+    clients[sessionId].extWs.send(JSON.stringify({
+        type: "ext-event-res",
+        data
+    }))
+}
 const waitExtWs = async (sessionId: string, timeout = 60, interval = 0.1) => {
     let now = new Date().getTime()
     await new Promise((resolve, reject) => {
@@ -164,6 +176,14 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
             clients[sessionId].extWs = ws
             logger.info('扩展端注册成功: ' + sessionId)
             ws.send(JSON.stringify({ status: 200, msg: '扩展注册成功', data: null }))
+            // 检查是否有劫持函数
+            let config = clients[sessionId].config
+            if (config.hijackFuncs) {
+                ws.send(JSON.stringify({
+                    type: "ext-set-hijack-funcs",
+                    data: config.hijackFuncs
+                }))
+            }
             // 通知控制端 扩展端已注册
             // resolveRes(sessionId, { status:200, msg: 'ext ready' })
             return
@@ -201,6 +221,15 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
         else if (sessionId && msg.type === "ctl-res") {
             let res = msg.data
             resolveRes(sessionId, res)
+        } else if (sessionId && msg.type === "ext-event") {
+            let res = msg.data
+            resolveExtEvent(sessionId, res)
+        } else if (sessionId && msg.type === "ext-event-res") {
+            // 检查页面是否已经重新加载
+            if (!clients[sessionId].extWs) {
+                return
+            }
+            resolveExtEventRes(sessionId, msg.data)
         } else {
             ws.send(JSON.stringify({ status: 400, msg: '无效的消息类型', data: null }))
         }

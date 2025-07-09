@@ -11,6 +11,12 @@ window.addEventListener('PageEvalResEvent', function (event) {
         evalObj.resolve = null
     }
 });
+
+console.log('[content] 开始监听injectjs的FetchEvent响应')
+window.addEventListener('FetchEvent', function (event) {
+    const requestData = event.detail;
+    console.log('拦截到Fetch请求:', requestData);
+});
 const ctlConfig = (() => {
     /**
      * 保存控制命令
@@ -236,7 +242,7 @@ const ctlConfig = (() => {
                 }
                 // 准备
                 triggerKeyPress(ele, key)
-            }else{
+            } else {
                 throw new Error(`元素不存在：${eleId} ${eleIndex}`)
             }
         },

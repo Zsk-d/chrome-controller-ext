@@ -26,8 +26,6 @@
       "js": [
         "util/req.js",
         "util/ele.js",
-        "contentjs/contentConfig.js",
-        "contentjs/ws.js",
         "contentjs/doc_start.js"
       ],
       "run_at": "document_start",
@@ -40,28 +38,29 @@
       "js": [
         "contentjs/doc_end.js"
       ],
-      "run_at": "document_end",
-      "all_frames": true
+      "run_at": "document_end"
     },
     {
       "matches": [
         "<all_urls>"
       ],
       "js": [
+        "contentjs/contentConfig.js",
+        "contentjs/ws.js",
         "contentjs/doc_idle.js"
       ],
-      "run_at": "document_idle",
-      "all_frames": true
+      "run_at": "document_idle"
     }
   ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "zsk-spider-ext"
   },
-  "web_accessible_resources":[
+  "web_accessible_resources": [
     {
       "resources": [
-        "inject_js/inject_req_hijack.js",
+        "inject_js/inject_xhr_hijack.js",
+        "inject_js/inject_fetch_hijack.js",
         "inject_js/inject_hide_cdp.js",
         "inject_js/inject_mix_canvas.js",
         "inject_js/inject_JP_timezone.js",

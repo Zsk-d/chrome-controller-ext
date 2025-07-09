@@ -22,7 +22,9 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         proxy = null,
         loc = null,
         chromePath = null,
-        windowPosition = '0,0'
+        windowPosition = '0,0',
+        xhrHijack = false,
+        fetchHijack = false,
     } = opions || {}
 
     // Chrome 可执行路径
@@ -74,6 +76,12 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         // 有指定伪装位置, 根据位置设定浏览器的 时区,语言
         args.push(locMap[loc])
         paramsStr += `&loc=${loc}`
+    }
+    if(xhrHijack){
+        paramsStr += `&xhrHijack=true`
+    }
+    if(fetchHijack){
+        paramsStr += `&fetchHijack=true`
     }
     args.push('--new-window',)
     args.push('https://www.browserscan.net/zh?sessionId=' + sessionId + paramsStr)

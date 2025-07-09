@@ -17,4 +17,4 @@ console.debug = function () {
     originalConsoleDebug.apply(console, arguments);
 };
 
-console.log('CDP指纹已成功隐藏');
+console.log('CDP指纹已隐藏', window.location.href)

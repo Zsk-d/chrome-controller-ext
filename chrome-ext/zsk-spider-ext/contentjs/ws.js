@@ -1,5 +1,20 @@
+// ext - event
 const connectWS = (sessionId, isFirst) => {
     let ws = new WebSocket("ws://localhost:8899");
+
+    // 监听eval响应
+    console.log('[content] 开始监听injectjs的XHROpenEvent响应')
+    window.addEventListener('XHROpenEvent', function (event) {
+        const requestData = event.detail;
+        console.log('拦截到XHR-open请求:', event.detail);
+        ws.send(JSON.stringify({ type: "ext-event", data: { eventName: 'XHROpenEvent', eventData: requestData } }));
+    })
+    console.log('[content] 开始监听injectjs的XHRSendEvent响应')
+    window.addEventListener('XHRSendEvent', function (event) {
+        const requestData = event.detail;
+        console.log('拦截到XHR-send请求:', requestData);
+        ws.send(JSON.stringify({ type: "ext-event", data: { eventName: 'XHRSendEvent', eventData: requestData } }));
+    });
 
     ws.onopen = async () => {
         console.log("[content] ✅ WebSocket 已连接, 准备注册 " + sessionId);
@@ -38,6 +53,18 @@ const connectWS = (sessionId, isFirst) => {
                     await setStorageData('ctl-res', null)
                 }
 
+            })
+        } else if (msg.type == 'ext-event-res') {
+            let { eventName, eventResData } = msg.data
+            const resEvent = new CustomEvent(eventName + 'Res', { detail: eventResData });
+            window.dispatchEvent(resEvent);
+        } else if (msg.type == 'ext-set-hijack-funcs') {
+            // 设定劫持函数
+            console.log('收到劫持函数设定', msg.data)
+            let funcs = msg.data
+            Object.keys(funcs).forEach(name => {
+                const resEvent = new CustomEvent(name, { detail: funcs[name] });
+                window.dispatchEvent(resEvent);
             })
         }
 

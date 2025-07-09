@@ -1,54 +1,66 @@
-// 	文档刚开始解析时，DOM 尚未构建，可以阻止页面加载内容（例如脚本注入屏蔽广告）。
-function injectScript(filePath) {
-  if (!filePath) {
-    return
-  }
-  const script = document.createElement('script');
-  script.src = chrome.runtime.getURL(filePath); // 获取扩展内资源的 URL
-  script.type = 'text/javascript';
-  script.onload = function () {
-    this.remove(); // 可选，移除注入的 script 节点
-  };
-  (document.head || document.documentElement).appendChild(script);
-}
+/**
+ * 文档刚开始解析时，DOM 尚未构建，可以阻止页面加载内容（例如脚本注入屏蔽广告）
+ * @param {*} loc 
+ * @returns 
+ */
 const getTimeZoneInjectJs = (loc) => {
   return {
     'JP': injectScript('inject_js/inject_JP_timezone.js')
   }[loc]
 }
+
+/**
+ * 注入xhr劫持脚本
+ */
+const injectXhrHijack = () => {
+  injectScript('inject_js/inject_xhr_hijack.js')
+}
+
+/**
+ * 拦截Fetch请求
+ */
+const injectFetchHijack = () => {
+  injectScript('inject_js/inject_fetch_hijack.js')
+}
+
 (async function () {
-  console.log("⭐ zsk Start 脚本注入! ⭐");
 
   // js 注入
   injectScript('inject_js/inject_webrtc_patch.js')
-  // injectScript('inject_js/inject_req_hijack.js')
   injectScript('inject_js/inject_hide_cdp.js')
+
+
+  // if (!getCurrentHref().startsWith('https://www.browserscan.net')) {
+  //   return
+  // }
+  console.log("⭐ zsk Start 脚本注入! ⭐", getCurrentHref());
+
+  // 读取参数
+  let extOptions = await loadExtOptions()
+  if (!extOptions) {
+    return
+  }
+
+  // eval 2captcha 注入
   injectScript('inject_js/inject_eval.js')
   injectScript('inject_js/inject_2captcha.js')
-  window.addEventListener('XHREvent', function (event) {
-    const requestData = event.detail;
-    console.log('🚀 拦截到XHR请求:', requestData);
-  });
-  window.addEventListener('FetchEvent', function (event) {
-    const requestData = event.detail;
-    console.log('🚀 拦截到Fetch请求:', requestData);
-  });
 
   // 检查浏览器时区设定
-  // 检查是否
-  let loc = await getStorageData('loc');
-  if (!loc) {
-    const parsed = new URL(window.location.href);
-    loc = parsed.searchParams.get('loc');
-    console.log('获取到的时区参数:', loc);
-    if (loc) {
-      console.log('设置时区为:', loc);
-      await setStorageData('loc', loc);
-      injectScript(getTimeZoneInjectJs(loc))
-    }
-  } else {
+  let loc = extOptions.loc
+  if (loc) {
     console.log('存在时区配置', loc);
     injectScript(getTimeZoneInjectJs(loc))
   }
 
-})();
+  // 检查fetch劫持
+  if (extOptions.xhrHijack) {
+    console.log('存在xhr劫持配置')
+    injectXhrHijack()
+  }
+
+  // 检查xhr劫持
+  if (extOptions.fetchHijack) {
+    console.log('存在fetch劫持配置')
+    injectFetchHijack()
+  }
+})()
