@@ -12,11 +12,6 @@ window.addEventListener('PageEvalResEvent', function (event) {
     }
 });
 
-console.log('[content] 开始监听injectjs的FetchEvent响应')
-window.addEventListener('FetchEvent', function (event) {
-    const requestData = event.detail;
-    console.log('拦截到Fetch请求:', requestData);
-});
 const ctlConfig = (() => {
     /**
      * 保存控制命令

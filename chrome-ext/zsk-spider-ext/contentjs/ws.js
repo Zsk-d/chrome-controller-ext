@@ -6,14 +6,20 @@ const connectWS = (sessionId, isFirst) => {
     console.log('[content] 开始监听injectjs的XHROpenEvent响应')
     window.addEventListener('XHROpenEvent', function (event) {
         const requestData = event.detail;
-        console.log('拦截到XHR-open请求:', event.detail);
+        // console.log('拦截到XHR-open请求:', event.detail);
         ws.send(JSON.stringify({ type: "ext-event", data: { eventName: 'XHROpenEvent', eventData: requestData } }));
     })
     console.log('[content] 开始监听injectjs的XHRSendEvent响应')
     window.addEventListener('XHRSendEvent', function (event) {
         const requestData = event.detail;
-        console.log('拦截到XHR-send请求:', requestData);
+        // console.log('拦截到XHR-send请求:', requestData);
         ws.send(JSON.stringify({ type: "ext-event", data: { eventName: 'XHRSendEvent', eventData: requestData } }));
+    })
+    console.log('[content] 开始监听injectjs的FetchEvent响应')
+    window.addEventListener('FetchEvent', function (event) {
+        const requestData = event.detail;
+        // console.log('拦截到Fetch请求:', requestData);
+        ws.send(JSON.stringify({ type: "ext-event", data: { eventName: 'FetchEvent', eventData: requestData } }));
     });
 
     ws.onopen = async () => {
