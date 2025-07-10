@@ -52,7 +52,7 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         `--disable-features=WebRtcHideLocalIpsWithMdns`,
         `--window-position=${windowPosition}`,
         `--disable-popup-blocking`,
-        `--disable-notifications`,
+        // `--disable-notifications`,
         `--no-default-browser-check`,
         `--disable-features=PasswordManager`,
         '--disable-backgrounding-occluded-windows',
