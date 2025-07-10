@@ -1,8 +1,23 @@
+// 文档刚开始解析时，DOM 尚未构建，可以阻止页面加载内容（例如脚本注入屏蔽广告）
+
+
 /**
- * 文档刚开始解析时，DOM 尚未构建，可以阻止页面加载内容（例如脚本注入屏蔽广告）
- * @param {*} loc 
+ * 注入js到页面
+ * @param {*} filePath 
  * @returns 
  */
+const injectScript = (filePath) => {
+  if (!filePath) {
+    return
+  }
+  const script = document.createElement('script');
+  script.src = chrome.runtime.getURL(filePath); // 获取扩展内资源的 URL
+  script.type = 'text/javascript'
+  script.onload = function () {
+    // this.remove() // 可选，移除注入的 script 节点
+  };
+  (document.head || document.documentElement).appendChild(script);
+}
 const getTimeZoneInjectJs = (loc) => {
   return {
     'JP': injectScript('inject_js/inject_JP_timezone.js')
@@ -23,16 +38,12 @@ const injectFetchHijack = () => {
   injectScript('inject_js/inject_fetch_hijack.js')
 }
 
+// js 注入
+injectScript('inject_js/inject_webrtc_patch.js');
+injectScript('inject_js/inject_hide_cdp.js');
+injectScript('inject_js/inject_eval.js');
+
 (async function () {
-
-  // js 注入
-  injectScript('inject_js/inject_webrtc_patch.js')
-  injectScript('inject_js/inject_hide_cdp.js')
-
-
-  // if (!getCurrentHref().startsWith('https://www.browserscan.net')) {
-  //   return
-  // }
   console.log("⭐ zsk Start 脚本注入! ⭐", getCurrentHref());
 
   // 读取参数
@@ -40,10 +51,13 @@ const injectFetchHijack = () => {
   if (!extOptions) {
     return
   }
+  if (extOptions.tcaptchaGoogle) {
+    injectScript('inject_js/inject_2captcha_google.js');
+  }
+  if (extOptions.tcaptchaCloudflare) {
+    injectScript('inject_js/inject_2captcha_cloudflare.js');
+  }
 
-  // eval 2captcha 注入
-  injectScript('inject_js/inject_eval.js')
-  injectScript('inject_js/inject_2captcha.js')
 
   // 检查浏览器时区设定
   let loc = extOptions.loc

@@ -21,6 +21,10 @@ const connectWS = (sessionId, isFirst) => {
         // console.log('拦截到Fetch请求:', requestData);
         ws.send(JSON.stringify({ type: "ext-event", data: { eventName: 'FetchEvent', eventData: requestData } }));
     });
+    window.addEventListener('ClouflareTurnstileEvent', function (event) {
+        const requestData = event.detail;
+        ws.send(JSON.stringify({ type: "ext-event", data: { eventName: 'ClouflareTurnstileEvent', eventData: requestData } }));
+    });
 
     ws.onopen = async () => {
         console.log("[content] ✅ WebSocket 已连接, 准备注册 " + sessionId);

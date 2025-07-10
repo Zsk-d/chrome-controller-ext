@@ -25,6 +25,8 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         windowPosition = '0,0',
         xhrHijack = false,
         fetchHijack = false,
+        tcaptchaGoogle = false,
+        tcaptchaCloudflare = false,
     } = opions || {}
 
     // Chrome 可执行路径
@@ -77,11 +79,17 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         args.push(locMap[loc])
         paramsStr += `&loc=${loc}`
     }
-    if(xhrHijack){
+    if (xhrHijack) {
         paramsStr += `&xhrHijack=true`
     }
-    if(fetchHijack){
+    if (fetchHijack) {
         paramsStr += `&fetchHijack=true`
+    }
+    if (tcaptchaGoogle) {
+        paramsStr += `&tcaptchaGoogle=true`
+    }
+    if (tcaptchaCloudflare) {
+        paramsStr += `&tcaptchaCloudflare=true`
     }
     args.push('--new-window',)
     args.push('https://www.browserscan.net/zh?sessionId=' + sessionId + paramsStr)

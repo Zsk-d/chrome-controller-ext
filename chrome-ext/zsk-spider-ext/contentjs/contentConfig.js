@@ -66,39 +66,7 @@ const ctlConfig = (() => {
             )
         })
     }
-    function fireKeyEvent(el, evtType, keyCode) {
-        let doc = el.ownerDocument,
-            win = doc.defaultView || doc.parentWindow,
-            evtObj;
-        if (doc.createEvent) {
-            if (win.KeyEvent) {
-                evtObj = doc.createEvent('KeyEvents');
-                evtObj.initKeyEvent(evtType, true, true, win, false, false, false, false, keyCode, 0);
-            } else {
-                evtObj = doc.createEvent('UIEvents');
-                Object.defineProperty(evtObj, 'keyCode', {
-                    get: function () {
-                        return this.keyCodeVal;
-                    }
-                });
-                Object.defineProperty(evtObj, 'which', {
-                    get: function () {
-                        return this.keyCodeVal;
-                    }
-                });
-                evtObj.initUIEvent(evtType, true, true, win, 1);
-                evtObj.keyCodeVal = keyCode;
-                if (evtObj.keyCode !== keyCode) {
-                    console.log("keyCode " + evtObj.keyCode + " 和 (" + evtObj.which + ") 不匹配");
-                }
-            }
-            el.dispatchEvent(evtObj);
-        } else if (doc.createEventObject) {
-            evtObj = doc.createEventObject();
-            evtObj.keyCode = keyCode;
-            el.fireEvent('on' + evtType, evtObj);
-        }
-    }
+
     function inputEvent(el, vla) {
         let evtObj = new Event('input', {
             bubbles: true
@@ -210,6 +178,28 @@ const ctlConfig = (() => {
             }
             return elesRes
         },
+        getEle(eleId, eleIndex) {
+            if (eleMap[eleId]) {
+                let ele = eleMap[eleId]
+                if (eleIndex !== null && eleIndex >= 0) {
+                    if (eleIndex < ele.length) {
+                        return ele[eleIndex]
+                    }
+                }
+                return ele
+            }
+            return null
+        },
+        getParentElement(eleId, eleIndex) {
+            let ele = this.getEle(eleId, eleIndex)
+            if (ele) {
+                let eP = ele.parentElement
+                if (eP) {
+                    return this.newEle(eP)
+                }
+            }
+            return null
+        },
         async eleClick(eleId, eleIndex) {
             if (eleMap[eleId]) {
                 let ele = eleMap[eleId]
@@ -253,6 +243,28 @@ const ctlConfig = (() => {
                 // 准备
                 triggerKeyPress(ele, str)
             }
+        },
+        clickXY: (x, y) => {
+            chrome.runtime.sendMessage(
+                {
+                    action: 'mousedownToClick',
+                    params: { x, y }
+                },
+                function (response) {
+                    console.log('响应结果是', response)
+                }
+            )
+        },
+        touchXY: (x, y) => {
+            chrome.runtime.sendMessage(
+                {
+                    action: 'touchXY',
+                    params: { x, y }
+                },
+                function (response) {
+                    console.log('响应结果是', response)
+                }
+            )
         },
     }
 })()
@@ -344,6 +356,37 @@ ctlConfig.addCtlCmd('eleSendKey', async (args) => {
     try {
         ctlConfig.eleSendKey(args[0], args[1], args[2])
         return { status: 200, msg: 'send key done' }
+    } catch (error) {
+        return { status: 500, msg: error.message }
+    }
+})
+ctlConfig.addCtlCmd('parentElement', async (args) => {
+    let [eleId, eleIndex] = args
+    try {
+        let ele = ctlConfig.getParentElement(eleId, eleIndex)
+        if (ele) {
+            return { status: 200, data: ele }
+        } else {
+            return { status: 200, msg: '父元素不存在' }
+        }
+    } catch (error) {
+        return { status: 500, msg: error.message }
+    }
+})
+ctlConfig.addCtlCmd('clickXY', async (args) => {
+    let [x, y] = args
+    try {
+        ctlConfig.clickXY(x, y)
+        return { status: 200, msg: '点击完成 ' + args }
+    } catch (error) {
+        return { status: 500, msg: error.message }
+    }
+})
+ctlConfig.addCtlCmd('touchXY', async (args) => {
+    let [x, y] = args
+    try {
+        ctlConfig.touchXY(x, y)
+        return { status: 200, msg: '触摸完成 ' + args }
     } catch (error) {
         return { status: 500, msg: error.message }
     }

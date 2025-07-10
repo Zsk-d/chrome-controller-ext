@@ -47,5 +47,13 @@ declare global {
          * 是否启用fetch劫持
          */
         fetchHijack?: boolean,
+        /**
+         * 开启谷歌人机识别
+         */
+        tcaptchaGoogle?: boolean,
+        /**
+         * 开启cloudflare人机识别
+         */
+        tcaptchaCloudflare?: boolean,
     }
 }

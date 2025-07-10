@@ -25,24 +25,24 @@ chrome.webRequest.onBeforeRequest.addListener(
 );
 
 // 2. 修改请求头（例如添加自定义 Header）
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.declarativeNetRequest.updateDynamicRules({
-    addRules: [{
-      id: 1,
-      priority: 1,
-      action: {
-        type: "modifyHeaders",
-        requestHeaders: [
-          { header: "X-Custom-Header", operation: "set", value: "Zsk Injected By DNR" }
-        ]
-      },
-      condition: {
-        urlFilter: "*",
-        resourceTypes: ["xmlhttprequest"]
-      }
-    }]
-  });
-});
+// chrome.runtime.onInstalled.addListener(() => {
+//   chrome.declarativeNetRequest.updateDynamicRules({
+//     addRules: [{
+//       id: 1,
+//       priority: 1,
+//       action: {
+//         type: "modifyHeaders",
+//         requestHeaders: [
+//           { header: "X-Custom-Header", operation: "set", value: "Zsk Injected By DNR" }
+//         ]
+//       },
+//       condition: {
+//         urlFilter: "*",
+//         resourceTypes: ["xmlhttprequest"]
+//       }
+//     }]
+//   });
+// });
 
 // 3. 监听响应头（只能查看，不能修改）
 chrome.webRequest.onHeadersReceived.addListener(
@@ -109,11 +109,26 @@ async function connectToCDP(tabId, actions) {
   }
 }
 
+/**
+ * 在 chrome 扩展环境中，用 chrome.debugger 发送触摸点击事件
+ * @param {object} debuggeeId chrome.debugger.attach 的目标对象，比如 { tabId: 123 }
+ * @param {number} x 触摸点击的屏幕X坐标
+ * @param {number} y 触摸点击的屏幕Y坐标
+ * @returns {Promise<void>}
+ */
+
+
+/**
+ * 模拟鼠标按键
+ * @param {*} params 
+ * @param {*} sender 
+ * @param {*} sendResponse 
+ */
 const impMousedownToClick = (params, sender, sendResponse) => {
   chrome.debugger.attach({ tabId: sender.tab.id }, '1.2', function () {
     console.log('接收到content的消息---------', params, sender)
     let flag = true
-    // sendResponse({ yourEvent: '正在调整, 需要时间生效' })
+
     const xC = params.x
     const yC = params.y
     //通过触发鼠标的按下和抬起事件来触发点击事件
@@ -161,97 +176,165 @@ const impMousedownToClick = (params, sender, sendResponse) => {
   })
 }
 
+// 封装异步的 sendCommand 辅助
+function sendCommandAsync(debuggeeId, method, params) {
+  return new Promise((resolve, reject) => {
+    chrome.debugger.sendCommand(debuggeeId, method, params, (result) => {
+      if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+      else resolve(result);
+    });
+  });
+}
+
+/**
+ * 通过 chrome.debugger 发送触摸点击事件
+ * @param {{tabId:number}} debuggeeId
+ * @param {{x:number,y:number}} coords
+ * @returns {Promise<void>}
+ */
+async function sendTouchClickInternal(debuggeeId, coords) {
+  await sendCommandAsync(debuggeeId, 'Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [{ x: coords.x, y: coords.y }],
+    modifiers: 0,
+  });
+
+  await new Promise(r => setTimeout(r, 50));
+
+  await sendCommandAsync(debuggeeId, 'Input.dispatchTouchEvent', {
+    type: 'touchEnd',
+    touchPoints: [],
+    modifiers: 0,
+  });
+}
+
+/**
+ * 供消息监听调用，自动 attach 并执行触摸点击
+ * @param {{tabId:number,x:number,y:number}} params 
+ * @param {chrome.runtime.MessageSender} sender
+ * @param {(response:any) => void} sendResponse
+ */
+async function sendTouchClick(params, sender, sendResponse) {
+  const debuggeeId = { tabId: params.tabId ?? sender.tab?.id };
+  if (!debuggeeId.tabId) {
+    sendResponse({ success: false, error: '无法获取 tabId' });
+    return;
+  }
+
+  try {
+    // attach 目标 tab
+    await new Promise((resolve, reject) => {
+      chrome.debugger.attach(debuggeeId, '1.3', () => {
+        if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+        else resolve();
+      });
+    });
+
+    // 执行触摸点击
+    await sendTouchClickInternal(debuggeeId, params);
+
+    // detach
+    chrome.debugger.detach(debuggeeId);
+
+    sendResponse({ success: true });
+  } catch (error) {
+    sendResponse({ success: false, error: error.message || error });
+  }
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'mousedownToClick') {
-        const { params } = request;
-        impMousedownToClick(params, sender, sendResponse);
-    } else if (request.action === 'triggerKeyPress') {
-        const { params } = request;
-        impTriggerKeyPress(params, sender, sendResponse);
-    }
-    return true; // 保持异步响应
+  if (request.action === 'mousedownToClick') {
+    const { params } = request;
+    impMousedownToClick(params, sender, sendResponse);
+  } else if (request.action === 'triggerKeyPress') {
+    const { params } = request;
+    impTriggerKeyPress(params, sender, sendResponse);
+  } else if (request.action === 'touchXY') {
+    sendTouchClick(request.params, sender, sendResponse);
+  }
+  return true; // 保持异步响应
 });
 
 // 新增键盘事件实现
 // 新增键盘事件处理函数
 const impTriggerKeyPress = (params, sender, sendResponse) => {
-    chrome.debugger.attach({ tabId: sender.tab.id }, '1.2', () => {
-        const keyMap = {
-            'Enter': {code: 'Enter', keyCode: 13},
-            'Escape': {code: 'Escape', keyCode: 27},
-            'Tab': {code: 'Tab', keyCode: 9},
-            'ArrowUp': {code: 'ArrowUp', keyCode: 38},
-            'ArrowDown': {code: 'ArrowDown', keyCode: 40},
-            'ArrowLeft': {code: 'ArrowLeft', keyCode: 37},
-            'ArrowRight': {code: 'ArrowRight', keyCode: 39},
-            'Backspace': {code: 'Backspace', keyCode: 8},
-            'Delete': {code: 'Delete', keyCode: 46},
-            'Space': {code: 'Space', keyCode: 32},
-            '.': {code: 'Period', keyCode: 190},  // 点号的特殊处理
-        };
+  chrome.debugger.attach({ tabId: sender.tab.id }, '1.2', () => {
+    const keyMap = {
+      'Enter': { code: 'Enter', keyCode: 13 },
+      'Escape': { code: 'Escape', keyCode: 27 },
+      'Tab': { code: 'Tab', keyCode: 9 },
+      'ArrowUp': { code: 'ArrowUp', keyCode: 38 },
+      'ArrowDown': { code: 'ArrowDown', keyCode: 40 },
+      'ArrowLeft': { code: 'ArrowLeft', keyCode: 37 },
+      'ArrowRight': { code: 'ArrowRight', keyCode: 39 },
+      'Backspace': { code: 'Backspace', keyCode: 8 },
+      'Delete': { code: 'Delete', keyCode: 46 },
+      'Space': { code: 'Space', keyCode: 32 },
+      '.': { code: 'Period', keyCode: 190 },  // 点号的特殊处理
+    };
 
-        // 获取键位配置（特殊键或默认字符）
-        const keyConfig = keyMap[params.key] || {
-            code: params.key.length === 1 ? `Key${params.key.toUpperCase()}` : params.key,
-            keyCode: params.key.charCodeAt(0)
-        };
+    // 获取键位配置（特殊键或默认字符）
+    const keyConfig = keyMap[params.key] || {
+      code: params.key.length === 1 ? `Key${params.key.toUpperCase()}` : params.key,
+      keyCode: params.key.charCodeAt(0)
+    };
 
-        // 发送keyDown事件
-        chrome.debugger.sendCommand(
+    // 发送keyDown事件
+    chrome.debugger.sendCommand(
+      { tabId: sender.tab.id },
+      'Input.dispatchKeyEvent',
+      {
+        type: 'keyDown',
+        x: params.x,
+        y: params.y,
+        text: params.key.length === 1 ? params.key : '',
+        key: params.key,
+        code: keyConfig.code,
+        windowsVirtualKeyCode: keyConfig.keyCode,
+        isKeypad: false,
+        isSystemKey: false
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          console.error('KeyDown error:', chrome.runtime.lastError.message);
+          cleanup(sendResponse, sender.tab.id, false);
+          return;
+        }
+
+        // 发送keyUp事件
+        setTimeout(() => {
+          chrome.debugger.sendCommand(
             { tabId: sender.tab.id },
             'Input.dispatchKeyEvent',
             {
-                type: 'keyDown',
-                x: params.x,
-                y: params.y,
-                text: params.key.length === 1 ? params.key : '',
-                key: params.key,
-                code: keyConfig.code,
-                windowsVirtualKeyCode: keyConfig.keyCode,
-                isKeypad: false,
-                isSystemKey: false
+              type: 'keyUp',
+              x: params.x,
+              y: params.y,
+              key: params.key,
+              code: keyConfig.code,
+              windowsVirtualKeyCode: keyConfig.keyCode
             },
             () => {
-                if (chrome.runtime.lastError) {
-                    console.error('KeyDown error:', chrome.runtime.lastError.message);
-                    cleanup(sendResponse, sender.tab.id, false);
-                    return;
-                }
-
-                // 发送keyUp事件
-                setTimeout(() => {
-                    chrome.debugger.sendCommand(
-                        { tabId: sender.tab.id },
-                        'Input.dispatchKeyEvent',
-                        {
-                            type: 'keyUp',
-                            x: params.x,
-                            y: params.y,
-                            key: params.key,
-                            code: keyConfig.code,
-                            windowsVirtualKeyCode: keyConfig.keyCode
-                        },
-                        () => {
-                            if (chrome.runtime.lastError) {
-                                console.error('KeyUp error:', chrome.runtime.lastError.message);
-                                cleanup(sendResponse, sender.tab.id, false);
-                            } else {
-                                cleanup(sendResponse, sender.tab.id, true);
-                            }
-                        }
-                    );
-                }, 50); // 更短的延迟（50ms）
+              if (chrome.runtime.lastError) {
+                console.error('KeyUp error:', chrome.runtime.lastError.message);
+                cleanup(sendResponse, sender.tab.id, false);
+              } else {
+                cleanup(sendResponse, sender.tab.id, true);
+              }
             }
-        );
-    });
+          );
+        }, 50); // 更短的延迟（50ms）
+      }
+    );
+  });
 };
 
 // 清理函数
 const cleanup = (sendResponse, tabId, success) => {
-    chrome.debugger.detach({ tabId }, () => {
-        sendResponse({
-            code: success ? 200 : 500,
-            message: success ? '按键成功' : '按键失败'
-        });
+  chrome.debugger.detach({ tabId }, () => {
+    sendResponse({
+      code: success ? 200 : 500,
+      message: success ? '按键成功' : '按键失败'
     });
-};
+  });
+}

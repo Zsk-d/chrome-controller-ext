@@ -1,3 +1,4 @@
+console.log(`2captcha - google v2 js入`)
 function getRecaptchaClients() {
   // eslint-disable-next-line camelcase
   if (typeof (___grecaptcha_cfg) !== 'undefined') {
@@ -10,11 +11,11 @@ function getRecaptchaClients() {
         const found = Object.entries(toplevel).find(([_, value]) => (
           value && typeof value === 'object' && 'sitekey' in value && 'size' in value
         ));
-     
-        if (typeof toplevel === 'object' && toplevel instanceof HTMLElement && toplevel['tagName'] === 'DIV'){
-            data.pageurl = toplevel.baseURI;
+
+        if (typeof toplevel === 'object' && toplevel instanceof HTMLElement && toplevel['tagName'] === 'DIV') {
+          data.pageurl = toplevel.baseURI;
         }
-        
+
         if (found) {
           const [sublevelKey, sublevel] = found;
 

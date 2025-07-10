@@ -36,23 +36,6 @@ const setStorageData = (key, value) => {
   });
 }
 /**
- * 注入js到页面
- * @param {*} filePath 
- * @returns 
- */
-const injectScript = (filePath) => {
-  if (!filePath) {
-    return
-  }
-  const script = document.createElement('script');
-  script.src = chrome.runtime.getURL(filePath); // 获取扩展内资源的 URL
-  script.type = 'text/javascript'
-  script.onload = function () {
-    // this.remove() // 可选，移除注入的 script 节点
-  };
-  (document.head || document.documentElement).appendChild(script);
-}
-/**
  * 获取扩展选项
  */
 const loadExtOptions = async () => {
