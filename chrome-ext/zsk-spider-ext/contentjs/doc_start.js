@@ -1,6 +1,4 @@
 // 文档刚开始解析时，DOM 尚未构建，可以阻止页面加载内容（例如脚本注入屏蔽广告）
-
-
 /**
  * 注入js到页面
  * @param {*} filePath 
@@ -39,6 +37,8 @@ const injectFetchHijack = () => {
 }
 
 // js 注入
+// injectScript('inject_js/inject_global_config.js');
+injectScript('inject_js/inject_mix_canvas.js');
 injectScript('inject_js/inject_webrtc_patch.js');
 injectScript('inject_js/inject_hide_cdp.js');
 injectScript('inject_js/inject_eval.js');

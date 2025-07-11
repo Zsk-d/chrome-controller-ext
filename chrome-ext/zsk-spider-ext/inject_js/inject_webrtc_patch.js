@@ -15,13 +15,13 @@
       try {
         Object.defineProperty(window, prop, {
           get() {
-            console.warn(`[webrtc-block] attempt to access ${prop} was blocked`);
+            console.warn(`[webrtc-block] 屏蔽成功 ${window.location.href} ${prop}`);
             return undefined;
           },
           configurable: false
         });
       } catch (e) {
-        console.warn(`[webrtc-block] failed to redefine ${prop}:`, e);
+        console.warn(`[webrtc-block] 屏蔽失败 ${window.location.href} ${prop}:`, e);
       }
     }
   });
@@ -41,5 +41,5 @@
     } catch (e) {}
   }
 
-  console.debug('[webrtc-block] WebRTC API hooks installed');
+  console.debug('[webrtc-block] 屏蔽加载');
 })();

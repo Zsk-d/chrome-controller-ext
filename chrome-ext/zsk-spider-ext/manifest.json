@@ -59,6 +59,7 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "inject_js/inject_global_config.js",
         "inject_js/inject_xhr_hijack.js",
         "inject_js/inject_fetch_hijack.js",
         "inject_js/inject_hide_cdp.js",
