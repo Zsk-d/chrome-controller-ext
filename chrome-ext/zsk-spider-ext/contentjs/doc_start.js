@@ -18,7 +18,8 @@ const injectScript = (filePath) => {
 }
 const getTimeZoneInjectJs = (loc) => {
   return {
-    'JP': injectScript('inject_js/inject_JP_timezone.js')
+    'JP': 'inject_js/inject_JP_timezone.js',
+    'CO': 'inject_js/inject_CO_timezone.js',
   }[loc]
 }
 

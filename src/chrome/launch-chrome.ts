@@ -5,7 +5,8 @@ import { getLogger } from '../logger'
 
 const logger = getLogger(__filename)
 const locMap: any = {
-    'JP': `--lang=ja-JP`
+    'JP': `--lang=ja-JP`,
+    'CO': `--lang=es-CO`,
 }
 
 /**
