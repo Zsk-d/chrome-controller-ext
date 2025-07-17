@@ -1,7 +1,6 @@
 // chrome.runtime.onInstalled.addListener(() => {
 //   console.log("Extension installed and background service worker running.");
 // });
-let sessionId = null
 // ✅ background.js（监听来自 content script 的消息）
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("收到消息:", message)
@@ -23,6 +22,18 @@ chrome.webRequest.onBeforeRequest.addListener(
   { urls: ["<all_urls>"] },
   []
 );
+// 截图请求
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "requestScreenshot") {
+    chrome.tabs.captureVisibleTab(sender.tab.windowId, { format: "png" }, (dataUrl) => {
+      sendResponse({ screenshot: dataUrl });
+    });
+
+    // 异步响应
+    return true;
+  }
+});
+
 
 // 2. 修改请求头（例如添加自定义 Header）
 // chrome.runtime.onInstalled.addListener(() => {

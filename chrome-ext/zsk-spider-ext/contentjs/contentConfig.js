@@ -446,3 +446,7 @@ ctlConfig.addCtlCmd('getEval', async (args) => {
     })()
     return { status: 200, data: res, msg: 'eval done' }
 })
+ctlConfig.addCtlCmd('screenshot', async (args) => {
+    const response = await chrome.runtime.sendMessage({ action: "requestScreenshot" });
+    return { status: 200, data: response, msg: 'screenshot done' }
+})
