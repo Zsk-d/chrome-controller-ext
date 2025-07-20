@@ -55,5 +55,7 @@ declare global {
          * 开启cloudflare人机识别
          */
         tcaptchaCloudflare?: boolean,
+
+        extPath?: string,
     }
 }

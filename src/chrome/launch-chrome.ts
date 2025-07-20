@@ -28,6 +28,7 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         fetchHijack = false,
         tcaptchaGoogle = false,
         tcaptchaCloudflare = false,
+        extPath = null,
     } = opions || {}
 
     // Chrome 可执行路径
@@ -40,13 +41,11 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
     }
 
     // chrome启动参数
-    let extPath = path.resolve('./chrome-ext/zsk-spider-ext')
+    // let extPath = path.resolve('./chrome-ext/zsk-spider-ext')
     let paramsStr = ''
 
     const args = [
         `--user-data-dir=${path.resolve('userdata/' + dir + '/' + sessionId)}`,
-        `--load-extension=${extPath}`,
-        `--disable-extensions-except=${extPath}`,
         '--no-first-run',
         '--no-default-browser-check',
         `--force-webrtc-ip-handling-policy=disable_non_proxied_udp`,
@@ -92,8 +91,14 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
     if (tcaptchaCloudflare) {
         paramsStr += `&tcaptchaCloudflare=true`
     }
-    args.push('--new-window',)
-    args.push('https://www.browserscan.net/zh?sessionId=' + sessionId + paramsStr)
+
+    if (extPath) {
+        args.push(`--load-extension=${extPath}`,)
+        args.push(`--disable-extensions-except=${extPath}`,)
+
+        args.push('--new-window',)
+        args.push('https://www.browserscan.net/zh?sessionId=' + sessionId + paramsStr)
+    }
     const chrome = spawn(chromePath, args, {
         detached: true,
         stdio: 'ignore'
