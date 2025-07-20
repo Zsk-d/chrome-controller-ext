@@ -57,5 +57,7 @@ declare global {
         tcaptchaCloudflare?: boolean,
 
         extPath?: string,
+
+        openPage?: string,
     }
 }
