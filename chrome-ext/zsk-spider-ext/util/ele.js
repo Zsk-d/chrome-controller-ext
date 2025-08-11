@@ -42,6 +42,7 @@ function describeElement(element) {
     tag: element.tagName,
     id: element.id || null,
     className: element.className || null,
+    value: element.value || null,
     width: rect.width,
     height: rect.height,
     x: rect.left + window.scrollX,
