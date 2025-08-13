@@ -3,6 +3,14 @@
 - 控制端(client)发送启动命令, 服务使用chrome.exe 命令行启动, 追加启动参数, 并加载控制扩展
 - 访问初始页面, 启动参数追加扩展配置, 扩展启动后 加载配置 以 装载相关功能
 - 控制端发送命令, 扩展接收执行并返回响应结果
+# 支持破解的人机验证
+## Cloudflare Turnstile 
+![cloudflare](https://github.com/Zsk-d/chrome-controller-ext/blob/prod/img/a58b37bb71f0d06b3064f0b72c33c320.png)
+## Google reCAPTCHA V2
+![gogle](https://github.com/Zsk-d/chrome-controller-ext/blob/prod/img/bf830d499937183de306c52fec6e6fb9.png)
+# 机器人检测结果
+![1](https://github.com/Zsk-d/chrome-controller-ext/blob/prod/img/53cdcce5eb7055493885909a7f8aab9e.png)
+![2](https://github.com/Zsk-d/chrome-controller-ext/blob/prod/img/71742cc9e69b73c393c12f2cde537c1f.png)
 # index.ts 消息中转服务
 ```
 监听端口: WEBSOCKET_SERVER_PROT
