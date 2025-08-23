@@ -450,3 +450,7 @@ ctlConfig.addCtlCmd('screenshot', async (args) => {
     const response = await chrome.runtime.sendMessage({ action: "requestScreenshot" });
     return { status: 200, data: response, msg: 'screenshot done' }
 })
+ctlConfig.addCtlCmd('closeOtherTab', async (args) => {
+    chrome.runtime.sendMessage({ action: "closeOtherTabs" });
+    return { status: 200, data: {}, msg: 'closeOtherTab done' }
+})

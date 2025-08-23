@@ -32,8 +32,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // 异步响应
     return true;
   }
-});
+  if (message.action === "closeOtherTabs") {
+    // 获取当前窗口的所有 tab
+    chrome.tabs.query({ currentWindow: true }, (tabs) => {
+      if (tabs.length <= 1) return;
 
+      // 保留第一个，关闭其他
+      const tabsToClose = tabs.slice(1).map(tab => tab.id);
+      chrome.tabs.remove(tabsToClose);
+    });
+  }
+});
 
 // 2. 修改请求头（例如添加自定义 Header）
 // chrome.runtime.onInstalled.addListener(() => {
