@@ -42,6 +42,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       chrome.tabs.remove(tabsToClose);
     });
   }
+  if (message.action === "getTabIndex") {
+    if (sender.tab) {
+      // sender.tab 就是发消息的 content script 所在的 tab
+      sendResponse({ index: sender.tab.index });
+    } else {
+      sendResponse({ index: -1 }); // 没有 tab 信息
+    }
 });
 
 // 2. 修改请求头（例如添加自定义 Header）

@@ -15,8 +15,12 @@ const regExt = async () => {
   if (extOptions.title) {
     document.title = extOptions.title
   }
-
-  await regExt()
+  chrome.runtime.sendMessage({ action: "getTabIndex" }, (response) => {
+    console.log("当前 tab index:", response.index);
+    if (response.index === 0) {
+      regExt()
+    }
+  });
 
   // chrome.runtime.sendMessage(
   //     {
