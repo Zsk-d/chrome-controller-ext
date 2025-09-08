@@ -37,3 +37,4 @@ function getRecaptchaClients() {
   }
   return [];
 }
+window.getRecaptchaClients = getRecaptchaClients

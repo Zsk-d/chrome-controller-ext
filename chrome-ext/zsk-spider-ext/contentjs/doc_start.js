@@ -20,6 +20,10 @@ const getTimeZoneInjectJs = (loc) => {
   return {
     'JP': 'inject_js/inject_JP_timezone.js',
     'CO': 'inject_js/inject_CO_timezone.js',
+    'IT': 'inject_js/inject_IT_timezone.js',
+    'CZ': 'inject_js/inject_CZ_timezone.js',
+    'ES': 'inject_js/inject_ES_timezone.js',
+    'FR': 'inject_js/inject_FR_timezone.js',
   }[loc]
 }
 
@@ -39,7 +43,7 @@ const injectFetchHijack = () => {
 
 // js 注入
 // injectScript('inject_js/inject_global_config.js');
-injectScript('inject_js/inject_mix_canvas.js');
+// injectScript('inject_js/inject_mix_canvas.js');
 injectScript('inject_js/inject_webrtc_patch.js');
 injectScript('inject_js/inject_hide_cdp.js');
 injectScript('inject_js/inject_eval.js');

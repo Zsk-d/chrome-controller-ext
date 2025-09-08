@@ -79,7 +79,7 @@ const clients: any = {
      */
 }
 const resolveRes = (sessionId: string, data = {}) => {
-    clients[sessionId].ctlWs.send(JSON.stringify({
+    clients[sessionId] && clients[sessionId].ctlWs.send(JSON.stringify({
         type: "ctl-res",
         data
     }))
@@ -101,7 +101,7 @@ const waitExtWs = async (sessionId: string, timeout = 60, interval = 0.1) => {
     await new Promise((resolve, reject) => {
         let timer = setInterval(() => {
             // console.log('----检查extWxss状态---')
-            if (clients[sessionId].extWs) {
+            if (clients[sessionId] && clients[sessionId].extWs) {
                 // console.log('extWxs已连接')
                 clearInterval(timer)
                 resolve({})

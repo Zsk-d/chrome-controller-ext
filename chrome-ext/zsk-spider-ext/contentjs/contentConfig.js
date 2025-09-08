@@ -276,7 +276,11 @@ ctlConfig.addCtlCmd('openPage', async (args) => {
     let [href] = args
     // 体检提交待返回的数据, 等扩展重新注册时重发
     await setStorageData('ctl-res', { type: "ctl-res", data: { status: 200, msg: href + ' 页面打开完成' } })
-    window.location.href = href;
+    // window.location.href = href;
+    const a = document.createElement('a');
+    a.href = href;
+    a.rel = 'noreferrer';
+    a.click();
     return null
 });
 ctlConfig.addCtlCmd('reload', async () => {

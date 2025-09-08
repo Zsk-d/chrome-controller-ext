@@ -7,6 +7,24 @@ const logger = getLogger(__filename)
 const locMap: any = {
     'JP': `--lang=ja-JP`,
     'CO': `--lang=es-CO`,
+    'IT': `--lang=it-IT`,
+    'CZ': `--lang=cs-CZ`,
+    'US': `--lang=en-US`,
+    'KR': `--lang=ko-KR`,
+    'RU': `--lang=ru-RU`,
+    'BR': `--lang=pt-BR`,
+    'ID': `--lang=id-ID`,
+    'TH': `--lang=th-TH`,
+    'VN': `--lang=vi-VN`,
+    'ES': `--lang=es-ES`,
+    'FR': `--lang=fr-FR`,
+    'DE': `--lang=de-DE`,
+    'TR': `--lang=tr-TR`,
+    'PH': `--lang=en-PH`,
+    'UA': `--lang=uk-UA`,
+    'PL': `--lang=pl-PL`,
+    'IN': `--lang=en-IN`,
+
 }
 
 /**
@@ -92,7 +110,7 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
     if (tcaptchaCloudflare) {
         paramsStr += `&tcaptchaCloudflare=true`
     }
-    if(openPage){
+    if (openPage) {
         args.push('--new-window')
         args.push(openPage)
     }
@@ -102,7 +120,7 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         args.push(`--disable-extensions-except=${extPath}`,)
 
         args.push('--new-window',)
-        args.push('https://www.browserscan.net/zh?sessionId=' + sessionId + paramsStr)
+        args.push('https://ipinfo.ipidea.io?sessionId=' + sessionId + paramsStr)
     }
     const chrome = spawn(chromePath, args, {
         detached: true,
