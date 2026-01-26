@@ -99,9 +99,9 @@ Chrome Controller Ext 是一个基于 WebSocket 的 Chrome 浏览器远程控制
 
 ### 3. 浏览器指纹隐藏
 - 隐藏 CDP 检测 ([inject_hide_cdp.js](/chrome-ext/zsk-spider-ext/inject_js/inject_hide_cdp.js))
-- Canvas 指纹混淆 ([inject_mix_canvas.js](\chrome-ext\zsk-spider-ext\inject_js\inject_mix_canvas.js))
-- WebRTC IP 隐藏 ([inject_webrtc_patch.js](\chrome-ext\zsk-spider-ext\inject_js\inject_webrtc_patch.js))
-- XHR/Fetch 请求劫持 ([inject_xhr_hijack.js](\chrome-ext\zsk-spider-ext\inject_js\inject_xhr_hijack.js), [inject_fetch_hijack.js](\chrome-ext\zsk-spider-ext\inject_js\inject_fetch_hijack.js))
+- Canvas 指纹混淆 ([inject_mix_canvas.js](/chrome-ext/zsk-spider-ext/inject_js/inject_mix_canvas.js))
+- WebRTC IP 隐藏 ([inject_webrtc_patch.js](/chrome-ext/zsk-spider-ext/inject_js/inject_webrtc_patch.js))
+- XHR/Fetch 请求劫持 ([inject_xhr_hijack.js](/chrome-ext/zsk-spider-ext/inject_js/inject_xhr_hijack.js), [inject_fetch_hijack.js](/chrome-ext/zsk-spider-ext/inject_js/inject_fetch_hijack.js))
 
 ### 4. 区域设置支持
 支持多种地区的时间和语言设置：
@@ -149,15 +149,15 @@ Chrome Controller Ext 是一个基于 WebSocket 的 Chrome 浏览器远程控制
 ### 3. 内容脚本机制
 
 #### 执行时机：
-- [doc_start.js](\chrome-ext\zsk-spider-ext\contentjs\doc_start.js): `document_start` 时机注入
-- [doc_end.js](\chrome-ext\zsk-spider-ext\contentjs\doc_end.js): `document_end` 时机注入
-- [doc_idle.js](\chrome-ext\zsk-spider-ext\contentjs\doc_idle.js): `document_idle` 时机注入
+- [doc_start.js](/chrome-ext/zsk-spider-ext/contentjs/doc_start.js): `document_start` 时机注入
+- [doc_end.js](/chrome-ext/zsk-spider-ext/contentjs/doc_end.js): `document_end` 时机注入
+- [doc_idle.js](/chrome-ext/zsk-spider-ext/contentjs/doc_idle.js): `document_idle` 时机注入
 
 #### 注入脚本功能：
-- [inject_xhr_hijack.js](\chrome-ext\zsk-spider-ext\inject_js\inject_xhr_hijack.js): XHR 请求劫持
-- [inject_fetch_hijack.js](\chrome-ext\zsk-spider-ext\inject_js\inject_fetch_hijack.js): Fetch API 劫持
-- [inject_2captcha_cloudflare.js](\chrome-ext\zsk-spider-ext\inject_js\inject_2captcha_cloudflare.js): Cloudflare 验证劫持
-- [inject_2captcha_google.js](\chrome-ext\zsk-spider-ext\inject_js\inject_2captcha_google.js): Google reCAPTCHA 劫持
+- [inject_xhr_hijack.js](/chrome-ext/zsk-spider-ext/inject_js/inject_xhr_hijack.js): XHR 请求劫持
+- [inject_fetch_hijack.js](/chrome-ext/zsk-spider-ext/inject_js/inject_fetch_hijack.js): Fetch API 劫持
+- [inject_2captcha_cloudflare.js](/chrome-ext/zsk-spider-ext/inject_js/inject_2captcha_cloudflare.js): Cloudflare 验证劫持
+- [inject_2captcha_google.js](/chrome-ext/zsk-spider-ext/inject_js/inject_2captcha_google.js): Google reCAPTCHA 劫持
 
 ## 配置选项
 
@@ -213,7 +213,7 @@ node dist/server.js  # 启动 WebSocket 服务器
 ## 扩展开发指南
 
 ### 添加新的控制命令
-在 [contentConfig.js](\chrome-ext\zsk-spider-ext\contentjs\contentConfig.js) 中添加新的控制命令：
+在 [contentConfig.js](/chrome-ext/zsk-spider-ext/contentjs/contentConfig.js) 中添加新的控制命令：
 
 ```javascript
 ctlConfig.addCtlCmd('customCommand', async (args) => {
@@ -224,7 +224,7 @@ ctlConfig.addCtlCmd('customCommand', async (args) => {
 
 ### 添加新的注入脚本
 1. 在 `inject_js/` 目录下创建新的注入脚本
-2. 更新 [manifest.json](\chrome-ext\zsk-spider-ext\manifest.json) 中的 `web_accessible_resources` 配置
+2. 更新 [manifest.json](/chrome-ext/zsk-spider-ext/manifest.json) 中的 `web_accessible_resources` 配置
 
 ### 事件处理机制
 项目使用自定义事件机制处理页面和扩展之间的通信：
