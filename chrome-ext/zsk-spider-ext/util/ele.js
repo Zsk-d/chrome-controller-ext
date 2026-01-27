@@ -26,7 +26,7 @@ function describeElement(element) {
     let path = [];
     while (el && el.nodeType === 1) {
       let selector = el.tagName.toLowerCase();
-      if (el.className) {
+      if (el.className && type(el.className) === 'string') {
         const classNames = el.className.trim().split(/\s+/).join('.');
         if (classNames) selector += `.${classNames}`;
       }
