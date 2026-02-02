@@ -112,6 +112,8 @@ const waitExtWs = async (sessionId: string, timeout = 60, interval = 0.1) => {
                     clearInterval(timer)
                     reject(new Error(`session[${sessionId}] 控制命令发送失败, 等待扩展端注册超时`))
                     logger.error(`session[${sessionId}] 扩展端注册超时 timeout=${timeout}s`)
+                    // 关闭浏览器
+                    clients[sessionId].ctlWs.close()
                 }
             }
         }, interval * 1000)
@@ -156,7 +158,16 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
             let chromePid = newChromeSession(config.keepUserdata ? 'hard' : 'tmp', sessionId, clients[sessionId].config)
             clients[sessionId].chromePid = chromePid
             logger.info('控制端注册成功: ' + JSON.stringify(msg))
-            return ws.send(JSON.stringify({ sessionId }))
+            ws.send(JSON.stringify({ sessionId }))
+
+            
+            let ctlSendTimeout = clients[sessionId].config.ctlSendTimeout || 60
+            let ctlSendTimeoutInterval = clients[sessionId].config.ctlSendTimeoutInterval || 0.1
+            try {
+                await waitExtWs(sessionId, ctlSendTimeout, ctlSendTimeoutInterval)
+            } catch (error: any) {
+                resolveRes(sessionId, { status: 500, msg: error.message })
+            }
         } else if (msg.type === "extReg") {
             // 扩展注册
             let sid = msg.sessionId
@@ -202,10 +213,7 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
          */
         // 循环等待扩展端注册, 并设置默认等待超时
         else if (sessionId && msg.type === "ctl-send" && msg.command) {
-            let ctlSendTimeout = clients[sessionId].config.ctlSendTimeout || 60
-            let ctlSendTimeoutInterval = clients[sessionId].config.ctlSendTimeoutInterval || 0.1
             try {
-                await waitExtWs(sessionId, ctlSendTimeout, ctlSendTimeoutInterval)
 
                 clients[sessionId].extWs.send(JSON.stringify({
                     type: "command",

@@ -120,7 +120,7 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         args.push(`--disable-extensions-except=${extPath}`,)
 
         args.push('--new-window',)
-        args.push('https://ipinfo.ipidea.io?sessionId=' + sessionId + paramsStr)
+        args.push('https://ipinfo.io/json?sessionId=' + sessionId + paramsStr)
     }
     const chrome = spawn(chromePath, args, {
         detached: true,
