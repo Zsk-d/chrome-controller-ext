@@ -96,10 +96,10 @@ const resolveExtEventRes = (sessionId: string, data = {}) => {
         data
     }))
 }
-const waitExtWs = async (sessionId: string, timeout = 60, interval = 0.1) => {
+const waitExtWs = async (sessionId: string, timeout = 20, interval = 0.1) => {
     let now = new Date().getTime()
     await new Promise((resolve, reject) => {
-        let timer = setInterval(() => {
+        let timer = setInterval(async () => {
             // console.log('----检查extWxss状态---')
             if (clients[sessionId] && clients[sessionId].extWs) {
                 // console.log('extWxs已连接')
@@ -108,16 +108,41 @@ const waitExtWs = async (sessionId: string, timeout = 60, interval = 0.1) => {
             } else {
                 // console.log('extWxs未连接')
                 if (new Date().getTime() - now > timeout * 1000) {
-                    // console.log('extWxs等待超时')
+                    
                     clearInterval(timer)
-                    reject(new Error(`session[${sessionId}] 控制命令发送失败, 等待扩展端注册超时`))
+                    // console.log('extWxs等待超时')
                     logger.error(`session[${sessionId}] 扩展端注册超时 timeout=${timeout}s`)
-                    // 关闭浏览器
-                    clients[sessionId].ctlWs.close()
+                    // 重启浏览器
+                    killChrome(clients[sessionId], true)
+                    
+                    await new Promise(resolve => setTimeout(resolve, 5 * 1000));
+
+                    let chromePid = newChromeSession(clients[sessionId].config.keepUserdata ? 'hard' : 'tmp', sessionId, clients[sessionId].config)
+                    clients[sessionId].chromePid = chromePid
+
+                    await waitExtWs(sessionId, timeout, interval)
                 }
             }
         }, interval * 1000)
     })
+}
+const killChrome = (client: any, dontDelData?: boolean) => {
+    if (client.chromePid) {
+        try {
+            process.kill(client.chromePid)
+            logger.info(`Chrome ${client.chromePid} 被终止`)
+        } catch (e: any) {
+            logger.warn(`无法终止 Chrome ${client.chromePid}:`, e.message)
+        }
+        if (client.config && client.config.keepUserdata) {
+        } else {
+            if(!dontDelData){
+                setTimeout(() => {
+                    clearData(client.config.sessionId)
+                }, 5000)
+            }
+        }
+    }
 }
 wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
     const ip = req.socket.remoteAddress
@@ -161,7 +186,7 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
             ws.send(JSON.stringify({ sessionId }))
 
             
-            let ctlSendTimeout = clients[sessionId].config.ctlSendTimeout || 60
+            let ctlSendTimeout = clients[sessionId].config.ctlSendTimeout || 20
             let ctlSendTimeoutInterval = clients[sessionId].config.ctlSendTimeoutInterval || 0.1
             try {
                 await waitExtWs(sessionId, ctlSendTimeout, ctlSendTimeoutInterval)
@@ -260,20 +285,7 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
         }
 
         // 杀掉 Chrome
-        if (client.chromePid) {
-            try {
-                process.kill(client.chromePid)
-                logger.info(`Chrome ${client.chromePid} 被终止`)
-            } catch (e: any) {
-                logger.warn(`无法终止 Chrome ${client.chromePid}:`, e.message)
-            }
-            if (sessionId && clients[sessionId] && clients[sessionId].config && clients[sessionId].config.keepUserdata) {
-            } else {
-                setTimeout(() => {
-                    clearData(sessionId)
-                }, 5000)
-            }
-        }
+        killChrome(client)
 
         // 清理客户端
         delete clients[sessionId]
