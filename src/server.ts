@@ -112,6 +112,7 @@ const waitExtWs = async (sessionId: string, timeout = 20, interval = 0.1) => {
                     clearInterval(timer)
                     // console.log('extWxs等待超时')
                     logger.error(`session[${sessionId}] 扩展端注册超时 timeout=${timeout}s`)
+                    logger.info(JSON.stringify(clients))
                     // 重启浏览器
                     killChrome(clients[sessionId], true)
                     
