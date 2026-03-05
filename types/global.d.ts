@@ -52,6 +52,10 @@ declare global {
          */
         tcaptchaGoogle?: boolean,
         /**
+         * 无头模式
+         */
+        headless?: boolean,
+        /**
          * 开启cloudflare人机识别
          */
         tcaptchaCloudflare?: boolean,

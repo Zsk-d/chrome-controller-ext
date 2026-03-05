@@ -128,7 +128,7 @@ const waitExtWs = async (sessionId: string, timeout = 20, interval = 0.1) => {
     })
 }
 const killChrome = (client: any, dontDelData?: boolean) => {
-    if (client.chromePid) {
+    if (client && client.chromePid) {
         try {
             process.kill(client.chromePid)
             logger.info(`Chrome ${client.chromePid} 被终止`)

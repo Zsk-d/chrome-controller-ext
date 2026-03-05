@@ -6,12 +6,12 @@ window.addEventListener('PageEvalEvent', async (event) => {
     let evalStr = requestData.evalStr;
     let evalRes = null
     try {
-        evalRes = eval(evalStr)
+        evalRes = await eval(evalStr)
     } catch (error) {
     }
     // 发送给contentjs
     const cevent = new CustomEvent('PageEvalResEvent', {
-        detail: {res: evalRes}
+        detail: { res: evalRes }
     });
     window.dispatchEvent(cevent);
 })

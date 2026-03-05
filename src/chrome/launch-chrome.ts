@@ -47,7 +47,8 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         tcaptchaGoogle = false,
         tcaptchaCloudflare = false,
         extPath = null,
-        openPage = null
+        openPage = null,
+        headless = false,
     } = opions || {}
 
     // Chrome 可执行路径
@@ -85,6 +86,9 @@ export const newChromeSession = (dir: string, sessionId: string, opions: ChromeO
         if (windowSize) {
             args.push(`--window-size=${windowSize}`)
         }
+    }
+    if (headless) {
+        args.push('--headless=new')
     }
     if (proxy) {
         args.push(`--proxy-server=${proxy}`)
