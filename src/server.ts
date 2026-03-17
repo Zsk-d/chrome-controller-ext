@@ -98,6 +98,7 @@ const resolveExtEventRes = (sessionId: string, data = {}) => {
 }
 const waitExtWs = async (sessionId: string, timeout = 20, interval = 0.1) => {
     let now = new Date().getTime()
+    let error = false
     await new Promise((resolve, reject) => {
         let timer = setInterval(async () => {
             // console.log('----检查extWxss状态---')
@@ -117,7 +118,10 @@ const waitExtWs = async (sessionId: string, timeout = 20, interval = 0.1) => {
                     killChrome(clients[sessionId], true)
                     
                     await new Promise(resolve => setTimeout(resolve, 5 * 1000));
-
+                    if(!clients[sessionId]){
+                        reject(new Error('chrome中断'))
+                        return;
+                    }
                     let chromePid = newChromeSession(clients[sessionId].config.keepUserdata ? 'hard' : 'tmp', sessionId, clients[sessionId].config)
                     clients[sessionId].chromePid = chromePid
 
